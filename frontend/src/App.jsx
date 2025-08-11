@@ -8,14 +8,19 @@ import Register from './components/auth/Register';
 import Dashboard from './pages/Dashboard';
 import AllTransactionsPage from './pages/AllTransactions'; 
 import { TransactionProvider } from './context/TransactionContext';
+import BudgetsPage from './pages/BudgetsPage';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
     return (
         <AuthProvider>
-            <Router>
             <TransactionProvider>
-
-                <Routes>
+                <Router>
+                    <Toaster
+                        position="top-center"
+                        reverseOrder={false}
+                    />
+                    <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
@@ -27,9 +32,12 @@ function App() {
                         <Route path="/transactions" element={<AllTransactionsPage />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" />} />
+                    <Route path="/budgets" element={<PrivateRoute />}>
+                    <Route path="/budgets" element={<BudgetsPage />} />
+                </Route>
                 </Routes>
-            </TransactionProvider>
             </Router>
+            </TransactionProvider>
         </AuthProvider>
     );
 }

@@ -41,15 +41,15 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
                     <h3 className="text-lg font-semibold text-theme-text-secondary">Balance</h3>
-                    <p className="text-3xl font-bold text-theme-text-primary">₹{balance.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-theme-text-primary">₹{balance.toFixed(2)}</p>
                 </div>
                 <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
                     <h3 className="text-lg font-semibold text-theme-text-secondary">Income</h3>
-                    <p className="text-3xl font-bold text-theme-accent-green">+₹{totalIncome.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-theme-accent-green">+₹{totalIncome.toFixed(2)}</p>
                 </div>
                 <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
                     <h3 className="text-lg font-semibold text-theme-text-secondary">Expenses</h3>
-                    <p className="text-3xl font-bold text-theme-accent-red">-₹{totalExpense.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-theme-accent-red">-₹{totalExpense.toFixed(2)}</p>
                 </div>
             </div>
 

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
+import toast from 'react-hot-toast';
 
 export const TransactionContext = createContext();
 
@@ -8,16 +9,30 @@ export const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [alerts, setAlerts] = useState([]);
     const { token } = useContext(AuthContext);
 
     const API_URL = 'http://localhost:5000/api/transactions';
 
-    const getTransactions = useCallback(async () => {
+    const getAlerts = useCallback(async () => {
+        if (!token) return;
+        try {
+            const config = { headers: { 'x-auth-token': token } };
+            const res = await axios.get('/api/alerts', config);
+            if (Array.isArray(res.data)) setAlerts(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    }, [token]);
+
+    const getTransactions = useCallback(async (queryParams = '') => {
         if (!token) return;
         setLoading(true);
         try {
             const config = { headers: { 'x-auth-token': token } };
-            const res = await axios.get(API_URL, config);
+            // Append the query string if it exists
+            const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
+            const res = await axios.get(url, config);
             setTransactions(res.data);
         } catch (err) {
             setError(err);
@@ -30,12 +45,21 @@ export const TransactionProvider = ({ children }) => {
         if (!token) return;
         try {
             const config = { headers: { 'x-auth-token': token } };
-            const res = await axios.post(API_URL, transactionData, config);
-            setTransactions(prev => [res.data, ...prev]); // Add to state immediately
+            const res = await axios.post('/api/transactions', transactionData, config);
+            
+            // ✅ Update state with new transaction
+            setTransactions(prev => [res.data.transaction, ...prev]);
+
+            // ✅ Check if a new alert was returned
+            if (res.data.newAlert) {
+                toast.success('You have a new notification!'); // Show toaster
+                setAlerts(prev => [res.data.newAlert, ...prev]); // Instantly update the bell
+            }
+            
             return res.data;
         } catch (err) {
-            setError(err);
-            throw err; // Re-throw error for form handling
+            toast.error('Failed to add transaction.');
+            throw err;
         }
     };
 
@@ -54,6 +78,8 @@ export const TransactionProvider = ({ children }) => {
         transactions,
         loading,
         error,
+        alerts,
+        getAlerts,
         getTransactions,
         addTransaction,
         deleteTransaction

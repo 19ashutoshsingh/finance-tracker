@@ -1,17 +1,48 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Contexts
 import { AuthContext } from '../../context/AuthContext';
 import { TransactionContext } from '../../context/TransactionContext';
+
+// Components
 import Modal from './Modal';
 import TransactionForm from '../expenses/TransactionForm';
-import { FaSignOutAlt, FaUserCircle, FaPlus } from 'react-icons/fa';
-import logo from "../../assets/logo.png"
+
+// Icons & Assets
+import { FaSignOutAlt, FaUserCircle, FaPlus, FaBell, FaClipboardList } from 'react-icons/fa';
+import logo from '../../assets/logo.png';
 
 const Header = () => {
-    const { user, logout } = useContext(AuthContext);
-    const { addTransaction } = useContext(TransactionContext);
+    const { user, logout, token } = useContext(AuthContext);
+    // ✅ Getting alerts and getAlerts from the context, just as you specified
+    const { addTransaction, alerts, getAlerts } = useContext(TransactionContext); 
+    
+    // State for UI elements
     const [isModalOpen, setModalOpen] = useState(false);
+    const [showAlerts, setShowAlerts] = useState(false);
+    
     const navigate = useNavigate();
+    const alertsRef = useRef(null); // Ref for detecting clicks outside the alerts dropdown
+
+    // ✅ Fetching initial alerts on load using the function from the context
+    useEffect(() => {
+        if (token) {
+            getAlerts();
+        }
+    }, [token, getAlerts]);
+
+    // Effect to close the alerts dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (alertsRef.current && !alertsRef.current.contains(event.target)) {
+                setShowAlerts(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [alertsRef]);
 
     const handleLogout = () => {
         logout();
@@ -26,37 +57,87 @@ const Header = () => {
             console.error("Failed to add transaction:", error);
         }
     };
+    
+    const handleBellClick = () => {
+        setShowAlerts(prev => !prev);
+    };
+
+    const handleClearAll = async () => {
+        if (unreadAlertsCount === 0) return; // Do nothing if there are no unread alerts
+        try {
+            const config = { headers: { 'x-auth-token': token } };
+            await axios.post('/api/alerts/mark-read', {}, config);
+            getAlerts(); // Re-fetch from the server to get the updated (empty) list
+        } catch (err) {
+            console.error("Failed to mark alerts as read", err);
+        }
+    };
+    
+    // ✅ Calculating the unread count from the context's alerts state
+    const unreadAlertsCount = alerts.filter(a => !a.isRead).length;
 
     return (
         <>
-            <header className="shadow-sm">
+            <header className="shadow-sm bg-theme-surface/80 backdrop-blur-sm sticky top-0 z-50">
                 <nav className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
                     <Link to="/dashboard" className="flex items-center">
-                        <img src={logo} alt="FinanceTracker Logo" className="h-10 w-auto" />
+                        <img src={logo} alt="FinanceTracker Logo" className="h-10 w-auto mt-2" />
                         <span className="text-xl font-bold text-theme-primary">FinanceTracker</span>
                     </Link>
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                         {user ? (
                             <>
+                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary px-3 py-2 font-semibold hidden sm:block">
+                                    Budgets
+                                 </Link>
+                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary sm:hidden">
+                                    <FaClipboardList size={22} />
+                                </Link>
+                                
+                                <div className="relative mx-2" ref={alertsRef}>
+                                    <button onClick={handleBellClick} className="text-theme-text-secondary hover:text-theme-primary mt-2">
+                                        <FaBell size={22}/>
+                                        {unreadAlertsCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">{unreadAlertsCount}</span>
+                                        )}
+                                    </button>
+                                    {showAlerts && (
+                                    <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-theme-surface rounded-lg shadow-xl z-50 border border-gray-100">
+                                        <div className="flex justify-between items-center p-4 border-b">
+                                            <h4 className="font-bold text-theme-text-primary">Notifications</h4>
+                                            {/* ✅ Added Clear All button */}
+                                            {unreadAlertsCount > 0 && (
+                                                <button onClick={handleClearAll} className="text-sm text-theme-primary font-semibold hover:underline">
+                                                    Clear All
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="p-2 max-h-80 overflow-y-auto">
+                                            {alerts.length > 0 ? alerts.map(alert => (
+                                                <div key={alert._id} className="p-2 border-b border-gray-100 last:border-0">
+                                                    <p className="text-sm text-theme-text-secondary">{alert.message}</p>
+                                                    <p className="text-xs text-gray-400 mt-1">{new Date(alert.createdAt).toLocaleString()}</p>
+                                                </div>
+                                            )) : <p className="text-sm text-theme-text-secondary p-4 text-center">No new notifications.</p>}
+                                        </div>
+                                    </div>
+                                )}
+                                </div>
+
                                 <button
                                     onClick={() => setModalOpen(true)}
-                                    className="hidden sm:flex items-center bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300 mr-4"
+                                    className="hidden sm:flex items-center bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300 mr-2"
                                 >
                                     <FaPlus className="mr-2" /> Add Transaction
                                 </button>
-                                
-                                {/* ✅ Corrected the text color here */}
-                                <span className="text-theme-text-secondary mr-4 hidden sm:block">
-                                    <FaUserCircle className="inline mr-2" /> Welcome!
-                                </span>
 
-                                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 flex items-center">
-                                   <FaSignOutAlt className="mr-2" /> Logout
+                                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition duration-300 flex items-center p-2 sm:py-2 sm:px-4 sm:rounded-full">
+                                   <FaSignOutAlt size={18} />
+                                   <span className="hidden sm:inline sm:ml-2">Logout</span>
                                 </button>
                             </>
                         ) : (
                              <>
-                                {/* ✅ Adjusted Login link color for new theme */}
                                 <Link to="/login" className="text-theme-text-secondary hover:text-theme-text-primary px-3 py-2 font-semibold">Login</Link>
                                 <Link to="/register" className="bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300">Register</Link>
                             </>
@@ -64,8 +145,7 @@ const Header = () => {
                     </div>
                 </nav>
             </header>
-
-            {/* Floating Action Button (FAB) - Mobile */}
+            
             {user && (
                  <button
                     onClick={() => setModalOpen(true)}

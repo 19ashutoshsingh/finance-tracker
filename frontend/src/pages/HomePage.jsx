@@ -6,10 +6,10 @@ const HomePage = () => {
     return (
         <Layout>
             <div className="text-center">
-                <h1 className="text-5xl font-extrabold text-white sm:text-6xl md:text-7xl">
-                    Take Control of <span className="text-teal-400">Your Finances</span>
+                <h1 className="text-5xl font-bold text-theme-primary sm:text-4xl md:text-5xl">
+                    Take Control of Your <span className="text-teal-400">Finances</span>
                 </h1>
-                <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-300 sm:text-xl md:text-2xl">
+                <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-400 sm:text-xl md:text-2xl">
                     The simplest way to manage personal finances. Track your expenses, see where your money goes, and achieve your financial goals.
                 </p>
                 <div className="mt-8">
