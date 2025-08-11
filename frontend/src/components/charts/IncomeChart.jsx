@@ -4,18 +4,18 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
-const ExpenseChart = ({ expenses }) => {
+const IncomeChart = ({ transactions }) => {
+    const incomeCategories = ['Salary', 'Bonus', 'Freelance', 'Other Income'];
+
     const data = {
-        labels: ['Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense'],
+        labels: incomeCategories,
         datasets: [{
-            label: 'Expenses by Category',
-            data: [
-                expenses.filter(e => e.category === 'Food').reduce((acc, e) => acc + e.amount, 0),
-                expenses.filter(e => e.category === 'Transport').reduce((acc, e) => acc + e.amount, 0),
-                expenses.filter(e => e.category === 'Entertainment').reduce((acc, e) => acc + e.amount, 0),
-                expenses.filter(e => e.category === 'Utilities').reduce((acc, e) => acc + e.amount, 0),
-                expenses.filter(e => e.category === 'Other Expense').reduce((acc, e) => acc + e.amount, 0),
-            ],
+            label: 'Income by Category',
+            data: incomeCategories.map(cat => 
+                transactions
+                    .filter(t => t.category === cat)
+                    .reduce((acc, t) => acc + t.amount, 0)
+            ),
             backgroundColor: [
                 '#D9534F', // Soft Red
                 '#5BC0DE', // Info Blue
@@ -59,7 +59,7 @@ const ExpenseChart = ({ expenses }) => {
         <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
             {/* Use the primary text color for the title */}
             <h2 className="text-xl font-bold text-theme-text-primary text-center mb-4">
-                Expense Breakdown
+                Income Breakdown
             </h2>
 
             {/* Container with a specific height to ensure proper sizing */}
@@ -70,4 +70,4 @@ const ExpenseChart = ({ expenses }) => {
     );
 };
 
-export default ExpenseChart;
+export default IncomeChart;

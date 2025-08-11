@@ -3,7 +3,7 @@ import connectDB from './config/db.js';
 import cors from 'cors';
 import 'dotenv/config';
 import authRoutes from './routes/authRoutes.js';
-import expenseRoutes from './routes/expenseRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 
 const app = express();
 
@@ -18,7 +18,7 @@ app.get('/', (req, res) => res.send('API Running'));
 
 // Define Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/expenses', expenseRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 const PORT = process.env.PORT || 5000;
 

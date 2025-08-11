@@ -5,11 +5,12 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [token, setToken] = useState(() => localStorage.getItem('token')); // Use callback to read only on init
+    const [loading, setLoading] = useState(true); // ✅ Add a loading state, true by default
 
     useEffect(() => {
-        if (token) {
-            try {
+        try {
+            if (token) {
                 const decoded = jwtDecode(token);
                 // Check if token is expired
                 if (decoded.exp * 1000 < Date.now()) {
@@ -17,18 +18,19 @@ export const AuthProvider = ({ children }) => {
                 } else {
                     setUser({ id: decoded.user.id });
                 }
-            } catch (error) {
-                console.error("Invalid token", error);
-                logout();
             }
+        } catch (error) {
+            console.error("Invalid or expired token", error);
+            setUser(null); // Ensure user is null if token is bad
+        } finally {
+            setLoading(false); // ✅ Set loading to false after check is complete
         }
     }, [token]);
 
     const login = (newToken) => {
         localStorage.setItem('token', newToken);
         setToken(newToken);
-        const decoded = jwtDecode(newToken);
-        setUser({ id: decoded.user.id });
+        // The useEffect will automatically update the user and loading state
     };
 
     const logout = () => {
@@ -38,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, token, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
