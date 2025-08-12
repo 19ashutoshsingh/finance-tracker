@@ -14,6 +14,8 @@ import TransactionForm from '../expenses/TransactionForm';
 import { FaSignOutAlt, FaUserCircle, FaPlus, FaBell, FaClipboardList } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Header = () => {
     const { user, logout, token } = useContext(AuthContext);
     // ✅ Getting alerts and getAlerts from the context, just as you specified
@@ -66,7 +68,7 @@ const Header = () => {
         if (unreadAlertsCount === 0) return; // Do nothing if there are no unread alerts
         try {
             const config = { headers: { 'x-auth-token': token } };
-            await axios.post('/api/alerts/mark-read', {}, config);
+            await axios.post(`${API_BASE_URL}/api/alerts/mark-read`, {}, config);
             getAlerts(); // Re-fetch from the server to get the updated (empty) list
         } catch (err) {
             console.error("Failed to mark alerts as read", err);

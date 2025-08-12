@@ -3,59 +3,49 @@ import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import toast from 'react-hot-toast';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const TransactionContext = createContext();
 
 export const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [alerts, setAlerts] = useState([]);
     const { token } = useContext(AuthContext);
-
-    const API_URL = 'http://localhost:5000/api/transactions';
 
     const getAlerts = useCallback(async () => {
         if (!token) return;
         try {
             const config = { headers: { 'x-auth-token': token } };
-            const res = await axios.get('/api/alerts', config);
+            const res = await axios.get(`${API_BASE_URL}/api/alerts`, config);
             if (Array.isArray(res.data)) setAlerts(res.data);
         } catch (err) {
-            console.error(err);
+            console.error("Failed to fetch alerts", err);
         }
     }, [token]);
 
     const getTransactions = useCallback(async (queryParams = '') => {
         if (!token) return;
-        setLoading(true);
         try {
             const config = { headers: { 'x-auth-token': token } };
-            // Append the query string if it exists
-            const url = queryParams ? `${API_URL}?${queryParams}` : API_URL;
-            const res = await axios.get(url, config);
+            const res = await axios.get(`${API_BASE_URL}/api/transactions?${queryParams}`, config);
             setTransactions(res.data);
         } catch (err) {
-            setError(err);
-        } finally {
-            setLoading(false);
+            console.error("Failed to fetch transactions", err);
         }
     }, [token]);
 
     const addTransaction = async (transactionData) => {
-        if (!token) return;
+        if (!token) throw new Error("No token found");
         try {
             const config = { headers: { 'x-auth-token': token } };
-            const res = await axios.post('/api/transactions', transactionData, config);
+            const res = await axios.post(`${API_BASE_URL}/api/transactions`, transactionData, config);
             
-            // ✅ Update state with new transaction
             setTransactions(prev => [res.data.transaction, ...prev]);
 
-            // ✅ Check if a new alert was returned
             if (res.data.newAlert) {
-                toast.success('You have a new notification!'); // Show toaster
-                setAlerts(prev => [res.data.newAlert, ...prev]); // Instantly update the bell
+                toast.success('You have a new notification!');
+                setAlerts(prev => [res.data.newAlert, ...prev]);
             }
-            
             return res.data;
         } catch (err) {
             toast.error('Failed to add transaction.');
@@ -67,23 +57,14 @@ export const TransactionProvider = ({ children }) => {
         if (!token) return;
         try {
             const config = { headers: { 'x-auth-token': token } };
-            await axios.delete(`${API_URL}/${id}`, config);
+            await axios.delete(`${API_BASE_URL}/api/transactions/${id}`, config);
             setTransactions(prev => prev.filter(t => t._id !== id));
         } catch (err) {
-            setError(err);
+            toast.error('Failed to delete transaction.');
         }
     };
 
-    const value = {
-        transactions,
-        loading,
-        error,
-        alerts,
-        getAlerts,
-        getTransactions,
-        addTransaction,
-        deleteTransaction
-    };
+    const value = { transactions, alerts, getAlerts, getTransactions, addTransaction, deleteTransaction };
 
     return (
         <TransactionContext.Provider value={value}>

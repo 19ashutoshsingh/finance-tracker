@@ -6,11 +6,9 @@ import { TransactionContext } from '../context/TransactionContext';
 import { Link } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import BudgetComparisonChart from '../components/charts/BudgetComparisonChart'; // ✅ 1. Import the new component
-
-
-// const expenseCategories = ['Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense'];
-
 import { expenseCategories } from '../utils/categories';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const BudgetsPage = () => {
     const { token } = useContext(AuthContext);
@@ -26,7 +24,7 @@ const BudgetsPage = () => {
         const fetchBudgets = async () => {
             const config = { headers: { 'x-auth-token': token }, params: { month } };
             try {
-                const res = await axios.get('/api/budgets', config);
+                const res = await axios.get(`${API_BASE_URL}/api/budgets`, config);
                 if (Array.isArray(res.data)) {
                     const fetchedBudgets = res.data.reduce((acc, budget) => {
                         acc[budget.category] = budget.amount;
@@ -65,7 +63,7 @@ const BudgetsPage = () => {
         const config = { headers: { 'x-auth-token': token } };
         const body = { category, amount: Number(amount), month };
         try {
-            await axios.post('/api/budgets', body, config);
+            await axios.post(`${API_BASE_URL}/api/budgets`, body, config);
             setMessage(`${category} budget saved successfully!`);
             setTimeout(() => setMessage(''), 3000);
         } catch (err) {
