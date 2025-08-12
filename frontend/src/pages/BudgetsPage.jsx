@@ -5,8 +5,12 @@ import { AuthContext } from '../context/AuthContext';
 import { TransactionContext } from '../context/TransactionContext';
 import { Link } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import BudgetComparisonChart from '../components/charts/BudgetComparisonChart'; // ✅ 1. Import the new component
 
-const expenseCategories = ['Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense'];
+
+// const expenseCategories = ['Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense'];
+
+import { expenseCategories } from '../utils/categories';
 
 const BudgetsPage = () => {
     const { token } = useContext(AuthContext);
@@ -72,7 +76,7 @@ const BudgetsPage = () => {
 
     return (
         <Layout>
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto wow animate__animated animate__fadeIn">
                 <Link to="/dashboard" className="inline-flex items-center text-theme-text-secondary mb-4 font-semibold hover:underline">
                     <FaArrowLeft className="mr-2" />
                     Back to Dashboard
@@ -117,6 +121,8 @@ const BudgetsPage = () => {
                         );
                     })}
                 </div>
+                <BudgetComparisonChart budgets={budgets} spendingMap={spendingMap} />
+
             </div>
         </Layout>
     );

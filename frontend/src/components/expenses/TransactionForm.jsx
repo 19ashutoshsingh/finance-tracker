@@ -1,32 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { incomeCategories, expenseCategories } from '../../utils/categories';
+import { TransactionContext } from '../../context/TransactionContext';
 
-const incomeCategories = ['Salary', 'Bonus', 'Freelance', 'Other Income'];
-const expenseCategories = ['Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense'];
-
-const TransactionForm = ({ onTransactionAdded }) => {
+const TransactionForm = ({ onFormSubmit }) => {
+    const { addTransaction } = useContext(TransactionContext);
     const [type, setType] = useState('expense');
     const [formData, setFormData] = useState({ description: '', amount: '', category: 'Food' });
+    
+    // ✅ Add this line back to define your variables
     const { description, amount, category } = formData;
     
     const categories = type === 'income' ? incomeCategories : expenseCategories;
-
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    // Handle category change when type is switched
     useEffect(() => {
         setFormData(prev => ({ ...prev, category: categories[0] }));
-    }, [type]);
+    }, [type, categories]);
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        // Create the transaction data object
-        const transactionData = { ...formData, type };
-
-        // Call the function passed from the Header, which will handle the API call
-        onTransactionAdded(transactionData);
-
-        // Reset the form fields locally
-        setFormData({ description: '', amount: '', category: categories[0] });
+        try {
+            await addTransaction({ ...formData, type });
+            onFormSubmit(); // Close the modal
+        } catch (error) {
+            console.error("Form submission error:", error);
+        }
     };
 
     return (

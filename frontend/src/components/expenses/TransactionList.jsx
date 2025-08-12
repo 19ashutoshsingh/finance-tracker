@@ -1,30 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-// Import all the icons you need
 import {
     FaTrash, FaUtensils, FaCar, FaFilm, FaLightbulb, FaBoxOpen,
-    FaMoneyBillWave, FaGift, FaBriefcase, FaPlusCircle
+    FaMoneyBillWave, FaGift, FaBriefcase, FaPlusCircle, FaPencilAlt
 } from 'react-icons/fa';
 
-// Create a mapping from category name to icon component
 const categoryIcons = {
-    // Expense Icons
+    // ... your categoryIcons object ...
     'Food': <FaUtensils className="text-orange-500" />,
     'Transport': <FaCar className="text-blue-500" />,
     'Entertainment': <FaFilm className="text-purple-500" />,
     'Utilities': <FaLightbulb className="text-yellow-500" />,
     'Other Expense': <FaBoxOpen className="text-gray-500" />,
-    // Income Icons
     'Salary': <FaMoneyBillWave className="text-green-500" />,
     'Bonus': <FaGift className="text-pink-500" />,
     'Freelance': <FaBriefcase className="text-indigo-500" />,
     'Other Income': <FaPlusCircle className="text-teal-500" />
 };
 
-const TransactionList = ({ transactions, onDelete, showViewAllButton = false }) => {
+const TransactionList = ({ transactions, onDelete, onEditClick, showViewAllButton = false }) => {
     return (
         <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
-            {/* Header with dynamic title and conditional button */}
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-theme-text-primary">
                     {showViewAllButton ? 'Recent Transactions' : 'All Transactions'}
@@ -51,18 +47,28 @@ const TransactionList = ({ transactions, onDelete, showViewAllButton = false }) 
                             </div>
 
                             {/* Transaction details */}
-                            <div className="flex-grow">
-                                <p className="font-semibold text-theme-text-primary">{transaction.description}</p>
+                            <div className="flex-grow min-w-0">
+                                {/* ✅ The 'truncate' class is now conditional */}
+                                <p className={`font-semibold text-theme-text-primary ${showViewAllButton ? 'truncate' : ''}`}>
+                                    {transaction.description}
+                                </p>
                                 <p className="text-sm text-theme-text-secondary">{new Date(transaction.date).toLocaleDateString()}</p>
                             </div>
 
-                            {/* Amount and delete button */}
-                            <div className="flex items-center">
-                                <span className={`text-lg font-bold mr-4 ${transaction.type === 'income' ? 'text-theme-accent-green' : 'text-theme-accent-red'}`}>
+                            {/* Amount and action buttons */}
+                            <div className="flex items-center ml-4">
+                                <span className={`text-md font-bold mr-4 whitespace-nowrap ${transaction.type === 'income' ? 'text-theme-accent-green' : 'text-theme-accent-red'}`}>
                                     {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
                                 </span>
-                                <button onClick={() => onDelete(transaction._id)} className="text-gray-400 hover:text-theme-accent-red transition-colors">
-                                    <FaTrash size={18} />
+                                
+                                {onEditClick && (
+                                    <button onClick={() => onEditClick(transaction)} className="text-gray-400 hover:text-theme-primary transition-colors">
+                                        <FaPencilAlt size={16} />
+                                    </button>
+                                )}
+                                
+                                <button onClick={() => onDelete(transaction._id)} className="text-gray-400 hover:text-theme-accent-red transition-colors ml-3">
+                                    <FaTrash size={16} />
                                 </button>
                             </div>
                         </div>

@@ -1,75 +1,97 @@
-import React, { useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import Layout from '../components/core/Layout';
 import TransactionList from '../components/expenses/TransactionList';
 import ExpenseChart from '../components/charts/ExpenseChart';
 import IncomeChart from '../components/charts/IncomeChart';
 import { TransactionContext } from '../context/TransactionContext';
-import { FaPiggyBank, FaCreditCard, FaWallet } from 'react-icons/fa';
+import Modal from '../components/core/Modal';
+import TransactionForm from '../components/expenses/TransactionForm';
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 
 const Dashboard = () => {
-    // Get all state and functions from the global context
-    const { transactions, getTransactions, deleteTransaction, loading } = useContext(TransactionContext);
+    const { transactions, getTransactions, deleteTransaction } = useContext(TransactionContext);
 
-    // Fetch transactions when the component loads
+    // State and handlers for the Add/Edit modal
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [transactionToEdit, setTransactionToEdit] = useState(null);
+    const handleOpenModal = (transaction = null) => {
+        setTransactionToEdit(transaction);
+        setModalOpen(true);
+    };
+    const handleCloseModal = () => {
+        setModalOpen(false);
+        setTransactionToEdit(null);
+    };
+
     useEffect(() => {
         getTransactions();
     }, [getTransactions]);
 
-    // useMemo will prevent recalculating on every render, only when transactions change
-    const { totalIncome, totalExpense, balance } = useMemo(() => {
-        const income = transactions
-            .filter(t => t.type === 'income')
-            .reduce((acc, t) => acc + t.amount, 0);
-        const expense = transactions
-            .filter(t => t.type === 'expense')
-            .reduce((acc, t) => acc + t.amount, 0);
-        return { totalIncome: income, totalExpense: expense, balance: income - expense };
+    // Memoized calculations
+    const summary = useMemo(() => {
+        const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+        const expense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+        return { income, expense, balance: income - expense };
     }, [transactions]);
-
+    
+    const recentTransactions = useMemo(() => transactions.slice(0, 5), [transactions]);
     const incomeTransactions = useMemo(() => transactions.filter(t => t.type === 'income'), [transactions]);
     const expenseTransactions = useMemo(() => transactions.filter(t => t.type === 'expense'), [transactions]);
-    const recentTransactions = useMemo(() => transactions.slice(0, 5), [transactions]);
-
-    // Display a loading state while fetching data
-    if (loading && transactions.length === 0) {
-        return <Layout><p className="text-center text-theme-text-secondary mt-8">Loading transactions...</p></Layout>;
-    }
+    const expenseInsight = useMemo(() => { /* ... */ });
+    const incomeInsight = useMemo(() => { /* ... */ });
 
     return (
-        <Layout>
-            {/* Summary Cards with new theme */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
-                    <h3 className="text-lg font-semibold text-theme-text-secondary">Balance</h3>
-                    <p className="text-2xl font-bold text-theme-text-primary">₹{balance.toFixed(2)}</p>
+        <>
+            <Layout onAddTransactionClick={() => handleOpenModal()}>
+                {/* ✅ Summary Cards JSX is now directly here */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 wow animate__animated animate__fadeIn">
+                    {/* Total Balance Card */}
+                    <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
+                        <h3 className="text-lg font-semibold text-theme-text-secondary">Total Balance</h3>
+                        <p className={`text-2xl font-bold ${summary.balance >= 0 ? 'text-theme-accent-green' : 'text-theme-accent-red'}`}>
+                            ₹{summary.balance.toFixed(2)}
+                        </p>
+                    </div>
+                    {/* Total Income Card */}
+                    <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
+                        <h3 className="text-lg font-semibold text-theme-text-secondary">Total Income</h3>
+                        <p className="text-2xl font-bold text-theme-accent-green">
+                            +₹{summary.income.toFixed(2)}
+                        </p>
+                    </div>
+                    {/* Total Expense Card */}
+                    <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
+                        <h3 className="text-lg font-semibold text-theme-text-secondary">Total Expense</h3>
+                        <p className="text-2xl font-bold text-theme-accent-red">
+                            -₹{summary.expense.toFixed(2)}
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
-                    <h3 className="text-lg font-semibold text-theme-text-secondary">Income</h3>
-                    <p className="text-2xl font-bold text-theme-accent-green">+₹{totalIncome.toFixed(2)}</p>
-                </div>
-                <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
-                    <h3 className="text-lg font-semibold text-theme-text-secondary">Expenses</h3>
-                    <p className="text-2xl font-bold text-theme-accent-red">-₹{totalExpense.toFixed(2)}</p>
-                </div>
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column: Recent Transactions List */}
-                <div>
-                    <TransactionList
-                        transactions={recentTransactions}
-                        onDelete={deleteTransaction}
-                        showViewAllButton={transactions.length > 5} // Conditionally show the button
-                    />
-                </div>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 wow animate__animated animate__fadeIn">
+                    {/* Left Column */}
+                    <div className="space-y-6">
+                        <TransactionList
+                            transactions={recentTransactions}
+                            onDelete={deleteTransaction}
+                            onEditClick={handleOpenModal}
+                            showViewAllButton={transactions.length > 5}
+                        />
+                    </div>
 
-                {/* Right Column: Charts */}
-                <div className="space-y-8">
-                    <IncomeChart transactions={incomeTransactions} />
-                    <ExpenseChart expenses={expenseTransactions} />
+                    {/* Right Column: Charts */}
+                    <div className="space-y-6">
+                        <IncomeChart transactions={incomeTransactions} />
+                        <ExpenseChart expenses={expenseTransactions} />
+                    </div>
                 </div>
-            </div>
-        </Layout>
+            </Layout>
+            
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Add New Transaction">
+                <TransactionForm onFormSubmit={handleCloseModal} transactionToEdit={transactionToEdit} />
+            </Modal>
+        </>
     );
 };
 
