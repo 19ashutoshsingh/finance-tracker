@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
+        setLoading(true);
         try {
             if (token) {
                 const decoded = jwtDecode(token);
@@ -29,23 +30,28 @@ export const AuthProvider = ({ children }) => {
                 }
             }
         } catch (err) {
-            console.error("Invalid token", err);
+            console.error("Invalid token found, logging out.", err);
             logout();
         } finally {
             setLoading(false);
         }
     }, [token, logout]);
-
+    
+    // ✅ This is the corrected login function
     const login = async (formData) => {
         const config = { headers: { 'Content-Type': 'application/json' } };
         try {
+            // It sends the formData (email/password) as the body
             const res = await axios.post(`${API_BASE_URL}/api/users/login`, formData, config);
+            
+            // It receives a new token in the response
             localStorage.setItem('token', res.data.token);
             setToken(res.data.token);
             setError(null);
         } catch (err) {
-            setError(err.response?.data?.msg || 'Login failed');
-            throw err;
+            const errorMessage = err.response?.data?.msg || 'Login failed. Please check your credentials.';
+            setError(errorMessage);
+            throw new Error(errorMessage);
         }
     };
 
@@ -57,12 +63,13 @@ export const AuthProvider = ({ children }) => {
             setToken(res.data.token);
             setError(null);
         } catch (err) {
-            setError(err.response?.data?.msg || 'Registration failed');
-            throw err;
+            const errorMessage = err.response?.data?.msg || 'Registration failed.';
+            setError(errorMessage);
+            throw new Error(errorMessage);
         }
     };
 
-    const value = { user, token, loading, error, login, register, logout };
+    const value = { user, token, loading, error, login, register, logout, setError };
 
     return (
         <AuthContext.Provider value={value}>

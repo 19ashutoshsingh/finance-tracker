@@ -89,10 +89,10 @@ const Header = () => {
                     <div className="flex items-center gap-2">
                         {user ? (
                             <>
-                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary px-3 py-2 font-semibold hidden sm:block">
+                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary px-3 py-2 font-semibold hidden md:block">
                                     Budgets
                                  </Link>
-                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary sm:hidden">
+                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary md:hidden">
                                     <FaClipboardList size={22} />
                                 </Link>
                                 
@@ -128,14 +128,14 @@ const Header = () => {
 
                                 <button
                                     onClick={() => setModalOpen(true)}
-                                    className="hidden sm:flex items-center bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300 mr-2"
+                                    className="hidden md:flex items-center bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300 mr-2"
                                 >
                                     <FaPlus className="mr-2" /> Add Transaction
                                 </button>
 
-                                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition duration-300 flex items-center p-2 sm:py-2 sm:px-4 sm:rounded-full">
+                                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition duration-300 flex items-center p-2 md:py-2 md:px-4 md:rounded-full">
                                    <FaSignOutAlt size={18} />
-                                   <span className="hidden sm:inline sm:ml-2">Logout</span>
+                                   <span className="hidden md:inline md:ml-2">Logout</span>
                                 </button>
                             </>
                         ) : (
@@ -151,7 +151,7 @@ const Header = () => {
             {user && (
                  <button
                     onClick={() => setModalOpen(true)}
-                    className="sm:hidden fixed bottom-6 right-6 bg-theme-primary hover:opacity-90 text-white font-bold w-14 h-14 rounded-full flex items-center justify-center shadow-lg z-40"
+                    className="md:hidden fixed bottom-6 right-6 bg-theme-primary hover:opacity-90 text-white font-bold w-14 h-14 rounded-full flex items-center justify-center shadow-lg z-40"
                 >
                     <FaPlus size={24} />
                 </button>

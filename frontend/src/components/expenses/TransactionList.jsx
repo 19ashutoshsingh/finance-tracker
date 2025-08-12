@@ -61,11 +61,11 @@ const TransactionList = ({ transactions, onDelete, onEditClick, showViewAllButto
                                     {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
                                 </span>
                                 
-                                {onEditClick && (
+                                {/* {onEditClick && (
                                     <button onClick={() => onEditClick(transaction)} className="text-gray-400 hover:text-theme-primary transition-colors">
                                         <FaPencilAlt size={16} />
                                     </button>
-                                )}
+                                )} */}
                                 
                                 <button onClick={() => onDelete(transaction._id)} className="text-gray-400 hover:text-theme-accent-red transition-colors ml-3">
                                     <FaTrash size={16} />

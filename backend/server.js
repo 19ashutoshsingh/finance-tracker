@@ -20,7 +20,7 @@ app.use(express.json({ extended: false }));
 app.get('/', (req, res) => res.send('API Running'));
 
 // Define Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/users', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/alerts', alertRoutes);
