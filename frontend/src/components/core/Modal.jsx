@@ -12,11 +12,11 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         >
             {/* Modal content */}
             <div 
-                className="bg-theme-background rounded-lg shadow-xl w-full max-w-lg p-6 mx-4 relative"
+                className="bg-theme-background rounded-lg shadow-xl w-full max-w-lg p-6 pb-10 mx-4 relative"
                 onClick={e => e.stopPropagation()} // Prevent closing when clicking inside the modal
             >
                 {/* Modal Header */}
-                <div className="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
+                <div className="flex justify-between items-center border-b border-gray-500 pb-3 mb-4">
                     <h2 className="text-2xl font-bold text-theme-primary">{title}</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                         <FaTimes size={20} />

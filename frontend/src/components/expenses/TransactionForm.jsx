@@ -30,7 +30,6 @@ const TransactionForm = ({ onFormSubmit }) => {
     // The UI below remains the same
     return (
         <div>
-            <h2 className="text-2xl font-bold text-theme-primary mb-4">New Transaction</h2>
             <div className="flex mb-4">
                 <button type="button" onClick={() => setType('expense')} className={`flex-1 py-2 text-center font-semibold ${type === 'expense' ? 'text-teal-400 border-b-2 border-teal-400' : 'text-gray-500'}`}>Expense</button>
                 <button type="button" onClick={() => setType('income')} className={`flex-1 py-2 text-center font-semibold ${type === 'income' ? 'text-green-400 border-b-2 border-green-400' : 'text-gray-500'}`}>Income</button>
