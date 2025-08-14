@@ -1,10 +1,23 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/core/Layout';
 import hero from '../assets/hero.png'; 
 import { FaChartPie, FaBullseye, FaLightbulb } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext'; // ✅ 1. Import AuthContext
 
 const HomePage = () => {
+    // ✅ 2. Get user status and navigation tools
+    const { token, loading } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    // ✅ 3. Add effect to redirect logged-in users
+    useEffect(() => {
+        // Wait for the initial auth check to complete
+        if (!loading && token) {
+            navigate('/dashboard');
+        }
+    }, [token, loading, navigate]);
+
     const features = [
         {
             icon: <FaChartPie className="h-8 w-8 text-theme-primary" />,
@@ -23,6 +36,12 @@ const HomePage = () => {
         }
     ];
 
+    // ✅ 4. Prevent the homepage from flashing for logged-in users
+    if (loading || token) {
+        return null; // Or you can return a loading spinner component
+    }
+
+    // This JSX will only be shown to users who are not logged in
     return (
         <Layout>
             <div className="space-y-20 py-12">
@@ -59,14 +78,12 @@ const HomePage = () => {
 
                 {/* Features Section */}
                 <section className="container mx-auto px-4">
-                    {/* ✅ Animation added to the section title */}
                     <div className="text-center mb-12 wow animate__animated animate__fadeInUp">
                         <h2 className="text-3xl md:text-4xl font-bold text-theme-text-primary">Everything You Need, All in One Place</h2>
                         <p className="mt-4 text-lg text-theme-text-secondary">Powerful features to help you succeed.</p>
                     </div>
                     <div className="grid md:grid-cols-3 gap-8">
                         {features.map((feature, index) => (
-                            // ✅ Animation and a staggered delay added to each card
                             <div 
                                 key={index} 
                                 className="bg-theme-surface p-8 rounded-2xl shadow-md text-center wow animate__animated animate__fadeInUp"
@@ -83,7 +100,6 @@ const HomePage = () => {
                 </section>
 
                 {/* Final Call-to-Action Section */}
-                {/* ✅ Animation added to the final section */}
                 <section className="container mx-auto px-4 text-center wow animate__animated animate__fadeInUp">
                     <h2 className="text-3xl md:text-4xl font-bold text-theme-text-primary">Ready to Take Control?</h2>
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-theme-text-secondary">

@@ -75,12 +75,14 @@ const BudgetsPage = () => {
     return (
         <Layout>
             <div className="max-w-4xl mx-auto wow animate__animated animate__fadeIn">
-                <Link to="/dashboard" className="inline-flex items-center text-theme-text-secondary mb-4 font-semibold hover:underline">
-                    <FaArrowLeft className="mr-2" />
-                    Back to Dashboard
-                </Link>
+                <div className="mb-6">
+                    <Link to="/dashboard" className="inline-flex items-center text-theme-primary hover:underline font-semibold">
+                        <FaArrowLeft className="mr-2" />
+                        Back to Dashboard
+                    </Link>
+                </div>
                 <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold text-theme-primary">Monthly Budgets</h1>
+                    <h1 className="text-3xl font-bold mb-4 text-theme-text-primary">Monthly Budgets</h1>
                     <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="p-2 rounded-md bg-gray-100 border-2 border-gray-200"/>
                 </div>
                 

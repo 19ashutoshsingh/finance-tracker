@@ -42,6 +42,9 @@ export const TransactionProvider = ({ children }) => {
             
             setTransactions(prev => [res.data.transaction, ...prev]);
 
+            const type = transactionData.type.charAt(0).toUpperCase() + transactionData.type.slice(1);
+            toast.success(`${type} added successfully!`);
+
             if (res.data.newAlert) {
                 toast.success('You have a new notification!');
                 setAlerts(prev => [res.data.newAlert, ...prev]);
@@ -59,6 +62,7 @@ export const TransactionProvider = ({ children }) => {
             const config = { headers: { 'x-auth-token': token } };
             await axios.delete(`${API_BASE_URL}/api/transactions/${id}`, config);
             setTransactions(prev => prev.filter(t => t._id !== id));
+            toast.success('Transaction deleted successfully.');
         } catch (err) {
             toast.error('Failed to delete transaction.');
         }
