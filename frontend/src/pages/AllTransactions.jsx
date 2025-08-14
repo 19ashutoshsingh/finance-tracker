@@ -1,13 +1,11 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/core/Layout';
 import TransactionList from '../components/expenses/TransactionList';
 import { TransactionContext } from '../context/TransactionContext';
 import { FaArrowLeft } from 'react-icons/fa';
-
-// Define categories for the dynamic dropdown
-const incomeCategories = ['Salary', 'Bonus', 'Freelance', 'Other Income'];
-const expenseCategories = ['Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense'];
+// ✅ Imports categories from the central file for consistency
+import { incomeCategories, expenseCategories } from '../utils/categories';
 
 const AllTransactionsPage = () => {
     const { transactions, getTransactions, deleteTransaction } = useContext(TransactionContext);
@@ -15,9 +13,10 @@ const AllTransactionsPage = () => {
     const [filters, setFilters] = useState({
         type: '',
         category: '',
-        month: new Date().toISOString().slice(0, 7),
+        month: new Date().toISOString().slice(0, 7), // Defaults to the current month
     });
 
+    // Fetches transactions whenever a filter is changed
     useEffect(() => {
         const params = new URLSearchParams();
         if (filters.type) params.append('type', filters.type);
@@ -27,13 +26,14 @@ const AllTransactionsPage = () => {
         getTransactions(params.toString());
     }, [filters, getTransactions]);
 
+    // Dynamically updates the available categories based on the selected type
     const availableCategories = useMemo(() => {
         if (filters.type === 'income') return incomeCategories;
         if (filters.type === 'expense') return expenseCategories;
         return [...incomeCategories, ...expenseCategories];
     }, [filters.type]);
 
-    // ✅ CORRECTED LOGIC FOR HANDLING FILTER CHANGES
+    // Handles changes in the filter inputs
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         
@@ -42,7 +42,7 @@ const AllTransactionsPage = () => {
             [name]: value,
         };
 
-        // If the user changed the 'type', we must reset the 'category'
+        // If the user changes the 'type', reset the 'category' filter
         if (name === 'type') {
             newFilters.category = '';
         }
@@ -52,7 +52,7 @@ const AllTransactionsPage = () => {
 
     return (
         <Layout>
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto wow animate__animated animate__fadeIn">
                 <div className="mb-6">
                     <Link to="/dashboard" className="inline-flex items-center text-theme-primary hover:underline font-semibold">
                         <FaArrowLeft className="mr-2" />

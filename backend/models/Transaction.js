@@ -19,13 +19,18 @@ const TransactionSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum: ['income', 'expense'] // Transaction can only be 'income' or 'expense'
+        enum: ['income', 'expense']
     },
     category: {
         type: String,
         required: true,
-        // Categories for both income and expense
-        enum: ['Salary', 'Bonus', 'Freelance', 'Other Income', 'Food', 'Transport', 'Entertainment', 'Utilities', 'Other Expense']
+        // ✅ Update this list to match all your new categories
+        enum: [
+            // Income
+            'Salary', 'Bonus', 'Freelance', 'Investments', 'Gifts', 'Rental Income', 'Other Income',
+            // Expense
+            'Food', 'Transport', 'Entertainment', 'Utilities', 'Shopping', 'Health', 'Housing', 'Education', 'Subscriptions', 'Other Expense'
+        ]
     },
     date: {
         type: Date,

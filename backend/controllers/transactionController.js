@@ -14,43 +14,41 @@ export const addTransaction = async (req, res) => {
             amount,
             category,
             type,
-            date
+            date: date || new Date()
         });
 
         const transaction = await newTransaction.save();
         let newAlert = null;
 
-        // ✅ Budget checking logic starts here
         if (transaction.type === 'expense') {
-            const transactionMonth = new Date(transaction.date).toISOString().slice(0, 7);
+            const transactionDate = new Date(transaction.date);
+            const year = transactionDate.getFullYear();
+            const month = transactionDate.getMonth();
+            const transactionMonthISO = transactionDate.toISOString().slice(0, 7);
 
-            // Find the budget for this category and month
             const budget = await Budget.findOne({
                 user: req.user.id,
                 category: transaction.category,
-                month: transactionMonth
+                month: transactionMonthISO
             });
 
-            // ✅ Only proceed if a budget for this category actually exists
             if (budget) {
-                // Get all expenses for this category in the same month
+                // ✅ This is the corrected, more reliable date query
                 const userTransactions = await Transaction.find({
                     user: req.user.id,
                     category: transaction.category,
                     type: 'expense',
                     date: {
-                        $gte: new Date(`${transactionMonth}-01`),
-                        $lte: new Date(new Date(`${transactionMonth}-01`).setMonth(new Date(`${transactionMonth}-01`).getMonth() + 1) - 1)
+                        $gte: new Date(year, month, 1),
+                        $lt: new Date(year, month + 1, 1)
                     }
                 });
                 
                 const totalSpending = userTransactions.reduce((acc, t) => acc + t.amount, 0);
-
-                // Check for existing alerts for this budget threshold
                 const existingAlert = await Alert.findOne({
                     user: req.user.id,
                     category: transaction.category,
-                    month: transactionMonth,
+                    month: transactionMonthISO,
                 });
 
                 let alertMessage = '';
@@ -67,7 +65,7 @@ export const addTransaction = async (req, res) => {
                         user: req.user.id,
                         message: alertMessage,
                         category: transaction.category,
-                        month: transactionMonth
+                        month: transactionMonthISO
                     });
                     await newAlert.save();
                 }
@@ -83,8 +81,7 @@ export const addTransaction = async (req, res) => {
 };
 
 
-// @route   GET api/transactions
-// @desc    Get all transactions for a user
+// GET and DELETE functions remain the same
 export const getTransactions = async (req, res) => {
     try {
         const query = { user: req.user.id };
@@ -110,8 +107,6 @@ export const getTransactions = async (req, res) => {
     }
 };
 
-// @route   DELETE api/transactions/:id
-// @desc    Delete a transaction
 export const deleteTransaction = async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id);
