@@ -102,7 +102,7 @@ const BudgetsPage = () => {
                         </Link>
                     </div>
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-3xl font-bold text-theme-text-primary">Monthly Budgets</h1>
+                        <h1 className="text-2xl font-bold text-theme-text-primary">Monthly Budgets</h1>
                         <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="p-2 rounded-md bg-gray-100 border-2 border-gray-200"/>
                     </div>
 

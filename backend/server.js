@@ -7,6 +7,7 @@ import transactionRoutes from './routes/transactionRoutes.js';
 import budgetRoutes from './routes/budgetRoutes.js';
 import alertRoutes from './routes/alertRoutes.js';
 import reportRoutes from "./routes/reportRoutes.js"
+import debtRoutes from './routes/debtRoutes.js';
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/debts', debtRoutes);
 
 
 const PORT = process.env.PORT || 5000;

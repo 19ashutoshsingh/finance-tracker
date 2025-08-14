@@ -11,6 +11,7 @@ export const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [alerts, setAlerts] = useState([]);
     const { token } = useContext(AuthContext);
+    const [debts, setDebts] = useState([]);
 
     const getAlerts = useCallback(async () => {
         if (!token) return;
@@ -68,7 +69,58 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const value = { transactions, alerts, getAlerts, getTransactions, addTransaction, deleteTransaction };
+    // Functions to manage debts
+    const getDebts = useCallback(async () => {
+        if (!token) return;
+        try {
+            const config = { headers: { 'x-auth-token': token } };
+            const res = await axios.get(`${API_BASE_URL}/api/debts`, config);
+            setDebts(res.data);
+        } catch (err) { console.error("Failed to fetch debts", err); }
+    }, [token]);
+
+    const addDebt = async (debtData) => {
+        if (!token) throw new Error("No token found");
+        try {
+            const config = { headers: { 'x-auth-token': token } };
+            const res = await axios.post(`${API_BASE_URL}/api/debts`, debtData, config);
+            setDebts(prev => [res.data, ...prev].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+            toast.success('Record added successfully!');
+        } catch (err) { 
+            toast.error('Failed to add record.');
+            throw err;
+        }
+    };
+
+    const updateDebt = async (id) => {
+        if (!token) return;
+        try {
+            const config = { headers: { 'x-auth-token': token } };
+            // The PUT request now has an empty body, the backend does the toggle
+            const res = await axios.put(`${API_BASE_URL}/api/debts/${id}`, {}, config);
+            setDebts(prev => prev.map(debt => (debt._id === id ? res.data : debt)));
+            toast.success(`Record status updated!`);
+        } catch (err) {
+            toast.error('Failed to update record.');
+            throw err;
+        }
+    };
+
+    const deleteDebt = async (id) => {
+        if (!token) return;
+        if (window.confirm('Are you sure you want to delete this record?')) {
+            try {
+                const config = { headers: { 'x-auth-token': token } };
+                await axios.delete(`${API_BASE_URL}/api/debts/${id}`, config);
+                setDebts(prev => prev.filter(debt => debt._id !== id));
+                toast.success('Record deleted successfully.');
+            } catch (err) {
+                toast.error('Failed to delete record.');
+            }
+        }
+    };
+
+    const value = { transactions, alerts, getAlerts, getTransactions, addTransaction, deleteTransaction, debts, getDebts, addDebt, updateDebt, deleteDebt };
 
     return (
         <TransactionContext.Provider value={value}>
