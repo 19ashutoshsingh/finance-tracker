@@ -2,17 +2,14 @@ import React, { useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/core/Layout';
 import hero from '../assets/hero.png'; 
-import { FaChartPie, FaBullseye, FaLightbulb } from 'react-icons/fa';
-import { AuthContext } from '../context/AuthContext'; // ✅ 1. Import AuthContext
+import { FaChartPie, FaBullseye, FaLightbulb, FaHandHoldingUsd } from 'react-icons/fa'; // ✅ 1. Import new icon
+import { AuthContext } from '../context/AuthContext';
 
 const HomePage = () => {
-    // ✅ 2. Get user status and navigation tools
     const { token, loading } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // ✅ 3. Add effect to redirect logged-in users
     useEffect(() => {
-        // Wait for the initial auth check to complete
         if (!loading && token) {
             navigate('/dashboard');
         }
@@ -29,19 +26,23 @@ const HomePage = () => {
             title: "Set Budgets",
             description: "Create monthly budgets for different categories to stay on track and reach your financial goals faster."
         },
+        // ✅ 2. Add the new feature card for the Ledger
+        {
+            icon: <FaHandHoldingUsd className="h-8 w-8 text-theme-primary" />,
+            title: "Manage Your Ledger",
+            description: "Track money you've borrowed or lent to friends and family. Never forget who owes who with a simple ledger."
+        },
         {
             icon: <FaLightbulb className="h-8 w-8 text-theme-primary" />,
             title: "Get Real-time Insights",
-            description: "Receive instant alerts and see your top spending categories to make smarter financial decisions."
+            description: "Receive instant alerts when you're nearing a budget limit to make smarter financial decisions."
         }
     ];
 
-    // ✅ 4. Prevent the homepage from flashing for logged-in users
     if (loading || token) {
-        return null; // Or you can return a loading spinner component
+        return null; // Or a loading spinner
     }
 
-    // This JSX will only be shown to users who are not logged in
     return (
         <Layout>
             <div className="space-y-20 py-12">
@@ -69,7 +70,7 @@ const HomePage = () => {
                         <div className="wow animate__animated animate__fadeInRight flex justify-center">
                             <img 
                                 src={hero} 
-                                alt="FinanceTracker App" 
+                                alt="FinTrack App" 
                                 className="max-w-xs md:max-w-sm lg:max-w-md"
                             />
                         </div>
@@ -82,7 +83,8 @@ const HomePage = () => {
                         <h2 className="text-3xl md:text-4xl font-bold text-theme-text-primary">Everything You Need, All in One Place</h2>
                         <p className="mt-4 text-lg text-theme-text-secondary">Powerful features to help you succeed.</p>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-8">
+                    {/* The grid will now automatically adjust for 4 items */}
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {features.map((feature, index) => (
                             <div 
                                 key={index} 
