@@ -30,8 +30,8 @@ function App() {
                             <Route path="/dashboard" element={<Dashboard />} />
                         </Route>
 
-                        <Route path="/transactions" element={<PrivateRoute />}>
-                            <Route path="/transactions" element={<AllTransactionsPage />} />
+                        <Route path="/all-transactions" element={<PrivateRoute />}>
+                            <Route path="/all-transactions" element={<AllTransactionsPage />} />
                         </Route>
                         
                         <Route path="/budgets" element={<PrivateRoute />}>

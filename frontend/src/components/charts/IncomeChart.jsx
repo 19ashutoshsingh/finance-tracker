@@ -1,11 +1,27 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js';
+// ✅ Imports the official list from your central file
+import { incomeCategories } from '../../utils/categories';
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 const IncomeChart = ({ transactions }) => {
-    const incomeCategories = ['Salary', 'Bonus', 'Freelance', 'Other Income'];
+    
+    const relevantTransactions = transactions.filter(t => t.type === 'income' && incomeCategories.includes(t.category));
+
+    if (relevantTransactions.length === 0) {
+        return (
+            <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
+                <h2 className="text-xl font-bold text-theme-text-primary text-center mb-4">
+                    Income Breakdown
+                </h2>
+                <div className="text-center text-theme-text-secondary py-10">
+                    No income data to display.
+                </div>
+            </div>
+        );
+    }
 
     const data = {
         labels: incomeCategories,
@@ -13,19 +29,21 @@ const IncomeChart = ({ transactions }) => {
             label: 'Income by Category',
             data: incomeCategories.map(cat => 
                 transactions
-                    .filter(t => t.category === cat)
+                    .filter(t => t.category === cat && t.type === 'income')
                     .reduce((acc, t) => acc + t.amount, 0)
             ),
+            // ✅ Colors for all 7 income categories
             backgroundColor: [
-                '#D9534F', // Soft Red
-                '#5BC0DE', // Info Blue
-                '#9B59B6', // Amethyst Purple
-                '#F0AD4E', // Warning Orange
-                '#777777', // Medium Gray
+                '#4CAF50', // Green for Salary
+                '#E91E63', // Pink for Bonus
+                '#00BCD4', // Cyan for Freelance
+                '#FFC107', // Amber for Investments
+                '#9C27B0', // Purple for Gifts
+                '#795548', // Brown for Rental Income
+                '#607D8B', // Blue Grey for Other Income
             ],
-            // Use a light border color to match the card's background
             borderColor: '#FFFFFF', 
-            borderWidth: 4,
+            borderWidth: 1,
         }]
     };
 
@@ -36,33 +54,22 @@ const IncomeChart = ({ transactions }) => {
             legend: {
                 position: 'top',
                 labels: {
-                    // Use the primary text color from your theme
                     color: '#333333', 
                     usePointStyle: true,
                     padding: 20,
-                    font: {
-                        size: 14,
-                    }
+                    font: { size: 14 }
                 }
             },
-            title: {
-                display: false,
-            },
-            tooltip: {
-                boxPadding: 4,
-            }
+            title: { display: false },
+            tooltip: { boxPadding: 4 }
         },
     };
 
     return (
-        // Use the theme-surface for the card background
         <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
-            {/* Use the primary text color for the title */}
             <h2 className="text-xl font-bold text-theme-text-primary text-center mb-4">
                 Income Breakdown
             </h2>
-
-            {/* Container with a specific height to ensure proper sizing */}
             <div className="h-64 md:h-72 mx-auto">
                 <Pie data={data} options={options} />
             </div>
