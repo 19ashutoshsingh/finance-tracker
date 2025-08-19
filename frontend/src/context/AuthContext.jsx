@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null); // ✨ 1. Added state for handling errors
 
     const loadUser = useCallback(async () => {
         const localToken = localStorage.getItem('token');
@@ -28,27 +29,38 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // On initial load, set the token from localStorage and load the user
         setToken(localStorage.getItem('token'));
         loadUser();
     }, [loadUser]);
     
     const login = async (formData) => {
         const config = { headers: { 'Content-Type': 'application/json' } };
-        const res = await axios.post(`${API_BASE_URL}/api/users/login`, formData, config);
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        // After login, immediately load the user data
-        await loadUser();
+        try {
+            setError(null); // Clear any previous errors
+            const res = await axios.post(`${API_BASE_URL}/api/users/login`, formData, config);
+            localStorage.setItem('token', res.data.token);
+            setToken(res.data.token);
+            await loadUser();
+        } catch (err) {
+            // ✨ 2. Set error state if login fails
+            setError(err.response?.data?.message || 'Invalid credentials');
+            throw err; // Re-throw error so the component knows it failed
+        }
     };
     
     const register = async (formData) => {
         const config = { headers: { 'Content-Type': 'application/json' } };
-        const res = await axios.post(`${API_BASE_URL}/api/users/register`, formData, config);
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        // After registration, immediately load the user data
-        await loadUser();
+        try {
+            setError(null); // Clear any previous errors
+            const res = await axios.post(`${API_BASE_URL}/api/users/register`, formData, config);
+            localStorage.setItem('token', res.data.token);
+            setToken(res.data.token);
+            await loadUser();
+        } catch (err) {
+            // ✨ 2. Set error state if registration fails
+            setError(err.response?.data?.message || 'Registration failed');
+            throw err; // Re-throw error so the component knows it failed
+        }
     };
 
     const logout = () => {
@@ -57,14 +69,22 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    // ✨ 3. A function to manually clear errors from components
+    const clearError = () => {
+        setError(null);
+    };
+
     const value = {
         token,
         user,
         loading,
+        error,      // ✨ 4. Provide the error state
+        setError,   // ✨ 4. Provide the setError function (fixes the error)
+        clearError, // ✨ 4. Provide the clearError function
         login,
         register,
         logout,
-        setUser // For the Profile Page to update the user state
+        setUser
     };
 
     return (
