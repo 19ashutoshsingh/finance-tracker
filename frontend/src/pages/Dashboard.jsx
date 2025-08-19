@@ -60,7 +60,7 @@ const Dashboard = () => {
         <>
             <Layout onAddTransactionClick={() => setModalOpen(true)}>
                 <div className="mb-6 text-center">
-                    <h1 className="text-3xl font-bold text-theme-text-primary">Welcome Back!</h1>
+                    <h1 className="text-3xl font-bold text-theme-primary">Welcome Back, {user?.name}!</h1>
                     <p className="text-theme-text-secondary">Here's your financial overview for {new Date(currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}.</p>
                 </div>
 

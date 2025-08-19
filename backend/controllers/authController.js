@@ -58,3 +58,29 @@ export const getUser = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+export const updateUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (user) {
+            user.name = req.body.name || user.name;
+            const updatedUser = await user.save();
+            const payload = { user: { id: updatedUser.id } };
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5d' });
+
+            res.json({
+                token,
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email
+            });
+
+        } else {
+            res.status(404).json({ msg: 'User not found' });
+        }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};

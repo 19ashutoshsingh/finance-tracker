@@ -11,6 +11,7 @@ import { TransactionProvider } from './context/TransactionContext';
 import BudgetsPage from './pages/BudgetsPage';
 import DebtsPage from './pages/DebtsPage'; // ✅ Import the new Debts page
 import { Toaster } from 'react-hot-toast';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
     return (
@@ -42,6 +43,13 @@ function App() {
                         <Route path="/debts" element={<PrivateRoute />}>
                             <Route path="/debts" element={<DebtsPage />} />
                         </Route>
+
+                        <Route path="/profile" element={<PrivateRoute />}>
+                            <Route path="/profile" element={<ProfilePage />} />
+                        </Route>
+
+                        {/* <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} /> */}
+
 
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>

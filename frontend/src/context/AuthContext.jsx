@@ -1,6 +1,5 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -8,72 +7,69 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(() => localStorage.getItem('token'));
+    const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    const logout = useCallback(() => {
-        localStorage.removeItem('token');
-        setUser(null);
-        setToken(null);
+    const loadUser = useCallback(async () => {
+        const localToken = localStorage.getItem('token');
+        if (localToken) {
+            try {
+                const config = { headers: { 'x-auth-token': localToken } };
+                const res = await axios.get(`${API_BASE_URL}/api/users`, config);
+                setUser(res.data);
+            } catch (err) {
+                console.error("Token is invalid, logging out.", err);
+                localStorage.removeItem('token');
+                setToken(null);
+                setUser(null);
+            }
+        }
+        setLoading(false);
     }, []);
 
     useEffect(() => {
-        setLoading(true);
-        try {
-            if (token) {
-                const decoded = jwtDecode(token);
-                if (decoded.exp * 1000 < Date.now()) {
-                    logout();
-                } else {
-                    setUser({ id: decoded.user.id });
-                }
-            }
-        } catch (err) {
-            console.error("Invalid token found, logging out.", err);
-            logout();
-        } finally {
-            setLoading(false);
-        }
-    }, [token, logout]);
+        // On initial load, set the token from localStorage and load the user
+        setToken(localStorage.getItem('token'));
+        loadUser();
+    }, [loadUser]);
     
-    // ✅ This is the corrected login function
     const login = async (formData) => {
         const config = { headers: { 'Content-Type': 'application/json' } };
-        try {
-            // It sends the formData (email/password) as the body
-            const res = await axios.post(`${API_BASE_URL}/api/users/login`, formData, config);
-            
-            // It receives a new token in the response
-            localStorage.setItem('token', res.data.token);
-            setToken(res.data.token);
-            setError(null);
-        } catch (err) {
-            const errorMessage = err.response?.data?.msg || 'Login failed. Please check your credentials.';
-            setError(errorMessage);
-            throw new Error(errorMessage);
-        }
+        const res = await axios.post(`${API_BASE_URL}/api/users/login`, formData, config);
+        localStorage.setItem('token', res.data.token);
+        setToken(res.data.token);
+        // After login, immediately load the user data
+        await loadUser();
     };
-
+    
     const register = async (formData) => {
         const config = { headers: { 'Content-Type': 'application/json' } };
-        try {
-            const res = await axios.post(`${API_BASE_URL}/api/users/register`, formData, config);
-            localStorage.setItem('token', res.data.token);
-            setToken(res.data.token);
-            setError(null);
-        } catch (err) {
-            const errorMessage = err.response?.data?.msg || 'Registration failed.';
-            setError(errorMessage);
-            throw new Error(errorMessage);
-        }
+        const res = await axios.post(`${API_BASE_URL}/api/users/register`, formData, config);
+        localStorage.setItem('token', res.data.token);
+        setToken(res.data.token);
+        // After registration, immediately load the user data
+        await loadUser();
     };
 
-    const value = { user, token, loading, error, login, register, logout, setError };
+    const logout = () => {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+    };
+
+    const value = {
+        token,
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        setUser // For the Profile Page to update the user state
+    };
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
