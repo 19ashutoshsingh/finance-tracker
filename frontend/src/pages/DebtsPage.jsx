@@ -12,6 +12,8 @@ const DebtsPage = () => {
     const { debts = [], getDebts, updateDebt, deleteDebt } = useContext(TransactionContext);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [view, setView] = useState('lent'); 
+    
     const [isDebtModalOpen, setDebtModalOpen] = useState(false);
     const [isTransactionModalOpen, setTransactionModalOpen] = useState(false);
     
@@ -43,14 +45,16 @@ const DebtsPage = () => {
 
     const moneyLent = useMemo(() => filteredDebts.filter(d => d.type === 'lent'), [filteredDebts]);
     const moneyBorrowed = useMemo(() => filteredDebts.filter(d => d.type === 'borrowed'), [filteredDebts]);
-
     const totalLent = useMemo(() => moneyLent.reduce((sum, debt) => sum + debt.amount, 0), [moneyLent]);
     const totalBorrowed = useMemo(() => moneyBorrowed.reduce((sum, debt) => sum + debt.amount, 0), [moneyBorrowed]);
+
+    const visibleDebts = useMemo(() => (view === 'lent' ? moneyLent : moneyBorrowed), [view, moneyLent, moneyBorrowed]);
+    const visibleTotal = useMemo(() => (view === 'lent' ? totalLent : totalBorrowed), [view, totalLent, totalBorrowed]);
+    const visibleTitle = useMemo(() => (view === 'lent' ? "Money I've Lent" : "Money I've Borrowed"), [view]);
 
     const DebtCard = ({ debt }) => (
         <div className={`p-4 rounded-lg shadow-md ${debt.status === 'paid' ? 'bg-green-100 text-gray-500' : 'bg-white'}`}>
             <div className="flex justify-between items-center">
-                {/* Left side: Person Info */}
                 <div className="flex-1 min-w-0">
                     <p className="font-bold text-lg text-theme-text-primary truncate" title={debt.person}>{debt.person}</p>
                     <p className="text-sm text-theme-text-secondary truncate" title={debt.description}>{debt.description}</p>
@@ -59,7 +63,6 @@ const DebtsPage = () => {
                     </p>
                 </div>
 
-                {/* ✅ Right side: Actions (Updated Layout) */}
                 <div className="flex items-center gap-4 flex-shrink-0 ml-4">
                     <div className="text-right">
                         <p className={`font-bold text-xl ${debt.type === 'lent' ? 'text-theme-accent-red' : 'text-theme-accent-green'}`}>
@@ -89,7 +92,7 @@ const DebtsPage = () => {
     return (
         <>
             <Layout onAddTransactionClick={handleOpenTransactionModal}>
-                <div className="max-w-4xl mx-auto wow animate__animated animate__fadeIn">
+                <div className="max-w-6xl mx-auto wow animate__animated animate__fadeIn">
                     <div className="mb-6">
                         <Link to="/dashboard" className="inline-flex items-center text-theme-primary hover:underline font-semibold">
                             <FaArrowLeft className="mr-2" />
@@ -103,48 +106,45 @@ const DebtsPage = () => {
                         </button>
                     </div>
                     
-                    <div className="relative mb-6">
-                        <input
-                            type="text"
-                            placeholder="Search by person's name..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full p-3 pl-10 rounded-md bg-gray-100 border-2 border-gray-200"
-                        />
-                        <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search by person's name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full p-3 pl-10 rounded-md bg-gray-100 border-2 border-gray-200"
+                            />
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        </div>
+                        <select 
+                            value={view} 
+                            onChange={(e) => setView(e.target.value)}
+                            className="w-full p-3 rounded-md bg-gray-100 border-2 border-gray-200"
+                        >
+                            <option value="lent">Money I've Lent</option>
+                            <option value="borrowed">Money I've Borrowed</option>
+                        </select>
                     </div>
 
                     {loading ? (
                         <div className="text-center p-10 font-semibold text-lg">Loading Ledger...</div>
                     ) : (
-                        <div className="flex flex-col md:flex-row gap-8 md:items-start">
-                            {moneyLent.length > 0 && (
-                                <div className="bg-theme-surface p-6 rounded-2xl shadow-md flex-1 min-w-0">
-                                    <div className="flex justify-between items-baseline mb-4">
-                                        <h2 className="text-xl font-semibold text-theme-accent-red">Money I've Lent</h2>
-                                        <span className="font-bold text-lg text-theme-text-primary">
-                                            Total: ₹{totalLent.toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {moneyLent.map(debt => <DebtCard key={debt._id} debt={debt} />)}
-                                    </div>
-                                </div>
-                            )}
-                            
-                            {moneyBorrowed.length > 0 && (
-                                <div className="bg-theme-surface p-6 rounded-2xl shadow-md flex-1 min-w-0">
-                                    <div className="flex justify-between items-baseline mb-4">
-                                        <h2 className="text-xl font-semibold text-theme-accent-green">Money I've Borrowed</h2>
-                                        <span className="font-bold text-lg text-theme-text-primary">
-                                            Total: ₹{totalBorrowed.toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {moneyBorrowed.map(debt => <DebtCard key={debt._id} debt={debt} />)}
-                                    </div>
-                                </div>
-                            )}
+                        <div className="bg-theme-surface p-6 rounded-2xl shadow-md">
+                            <div className="flex justify-between items-baseline mb-4">
+                                <h2 className={`text-xl font-semibold ${view === 'lent' ? 'text-theme-accent-red' : 'text-theme-accent-green'}`}>
+                                    {visibleTitle}
+                                </h2>
+                                <span className="font-bold text-lg text-theme-text-primary">
+                                    Total: ₹{visibleTotal.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="space-y-4">
+                                {visibleDebts.length > 0 
+                                    ? visibleDebts.map(debt => <DebtCard key={debt._id} debt={debt} />)
+                                    : <p className="text-theme-text-secondary text-center py-8">No records found for this category.</p>
+                                }
+                            </div>
                         </div>
                     )}
                 </div>

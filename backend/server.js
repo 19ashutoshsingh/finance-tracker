@@ -8,6 +8,7 @@ import budgetRoutes from './routes/budgetRoutes.js';
 import alertRoutes from './routes/alertRoutes.js';
 import reportRoutes from "./routes/reportRoutes.js"
 import debtRoutes from './routes/debtRoutes.js';
+import insightsRoutes from './routes/insightsRoutes.js';
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/budgets', budgetRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/debts', debtRoutes);
+app.use('/api/insights', insightsRoutes);
 
 
 const PORT = process.env.PORT || 5000;

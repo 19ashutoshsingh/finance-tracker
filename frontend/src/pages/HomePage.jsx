@@ -48,7 +48,7 @@ const HomePage = () => {
             <div className="space-y-20 py-12">
                 
                 {/* Hero Section */}
-                <section className="container mx-auto px-4 text-center lg:text-left">
+                <section className="max-w-6xl mx-auto px-4 text-center lg:text-left">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         <div className="wow animate__animated animate__fadeInLeft">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-theme-text-primary leading-tight">

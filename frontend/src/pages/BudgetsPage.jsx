@@ -94,7 +94,7 @@ const BudgetsPage = () => {
     return (
         <>
             <Layout onAddTransactionClick={handleOpenModal}>
-                <div className="max-w-4xl mx-auto wow animate__animated animate__fadeIn">
+                <div className="max-w-6xl mx-auto wow animate__animated animate__fadeIn">
                     <div className="mb-6">
                         <Link to="/dashboard" className="inline-flex items-center text-theme-primary hover:underline font-semibold">
                             <FaArrowLeft className="mr-2" />

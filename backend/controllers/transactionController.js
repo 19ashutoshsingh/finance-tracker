@@ -1,9 +1,8 @@
 import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
 import Alert from '../models/Alert.js';
+import { Parser } from 'json2csv';
 
-// @route   POST api/transactions
-// @desc    Add a new transaction
 export const addTransaction = async (req, res) => {
     const { description, amount, category, type, date } = req.body;
 
@@ -50,12 +49,17 @@ export const addTransaction = async (req, res) => {
                     });
 
                     let alertMessage = '';
+                    let alertThreshold = 0;
+
                     if (!existingAlert && totalSpending >= budget.amount) {
                         alertMessage = `You have exceeded your budget of ₹${budget.amount} for ${budget.category}.`;
+                        alertThreshold = 100;
                     } else if (!existingAlert && totalSpending >= budget.amount * 0.9) {
                         alertMessage = `You have used 90% of your budget for ${budget.category}.`;
+                        alertThreshold = 90;
                     } else if (!existingAlert && totalSpending >= budget.amount * 0.5) {
                         alertMessage = `You have used 50% of your budget for ${budget.category}.`;
+                        alertThreshold = 50;
                     }
 
                     if (alertMessage) {
@@ -63,7 +67,8 @@ export const addTransaction = async (req, res) => {
                             user: req.user.id,
                             message: alertMessage,
                             category: transaction.category,
-                            month: transactionMonthISO
+                            month: transactionMonthISO,
+                            threshold: alertThreshold
                         });
                         await newAlert.save();
                     }
@@ -108,6 +113,7 @@ export const getTransactions = async (req, res) => {
     }
 };
 
+
 export const deleteTransaction = async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id);
@@ -121,6 +127,46 @@ export const deleteTransaction = async (req, res) => {
         res.json({ msg: 'Transaction removed' });
     } catch (err) {
         console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+
+export const exportTransactions = async (req, res) => {
+    try {
+        const query = { user: req.user.id };
+
+        // Reuse the filtering logic from your getTransactions function
+        if (req.query.month) {
+            const year = new Date(req.query.month).getFullYear();
+            const month = new Date(req.query.month).getMonth();
+            query.date = { 
+                $gte: new Date(year, month, 1), 
+                $lt: new Date(year, month + 1, 1) 
+            };
+        }
+        if (req.query.category) {
+            query.category = req.query.category;
+        }
+        if (req.query.type) {
+            query.type = req.query.type;
+        }
+
+        const transactions = await Transaction.find(query).sort({ date: -1 }).lean();
+
+        // Define which fields to include in the CSV
+        const fields = ['date', 'type', 'category', 'amount', 'description'];
+        const opts = { fields };
+        
+        const parser = new Parser(opts);
+        const csv = parser.parse(transactions);
+
+        res.header('Content-Type', 'text/csv');
+        res.attachment('transactions.csv');
+        return res.send(csv);
+
+    } catch (err) {
+        console.error('Export Error:', err.message);
         res.status(500).send('Server Error');
     }
 };

@@ -96,7 +96,6 @@ export const TransactionProvider = ({ children }) => {
         if (!token) return;
         try {
             const config = { headers: { 'x-auth-token': token } };
-            // The PUT request now has an empty body, the backend does the toggle
             const res = await axios.put(`${API_BASE_URL}/api/debts/${id}`, {}, config);
             setDebts(prev => prev.map(debt => (debt._id === id ? res.data : debt)));
             toast.success(`Record status updated!`);
@@ -120,7 +119,21 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const value = { transactions, alerts, getAlerts, getTransactions, addTransaction, deleteTransaction, debts, getDebts, addDebt, updateDebt, deleteDebt };
+    // ✅ The only change needed is adding 'token' to this value object
+    const value = { 
+        transactions, 
+        alerts, 
+        getAlerts, 
+        getTransactions, 
+        addTransaction, 
+        deleteTransaction, 
+        debts, 
+        getDebts, 
+        addDebt, 
+        updateDebt, 
+        deleteDebt,
+        token // Add the token here
+    };
 
     return (
         <TransactionContext.Provider value={value}>
