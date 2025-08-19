@@ -11,7 +11,9 @@ import {
     FaHandHoldingUsd,
     FaBars,
     FaTimes,
-    FaUserCircle
+    FaUserCircle,
+    FaUser,
+    FaCircle
 } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 
@@ -101,7 +103,7 @@ const Header = ({ onAddTransactionClick }) => {
                     {/* Logo */}
                     <Link to={user ? "/dashboard" : "/"} className="flex items-center">
                         <img src={logo} alt="Site Logo" className="h-10 w-auto" />
-                        <span className="text-xl font-bold text-theme-primary ml-2">CashVue</span>
+                        <span className="text-[1.5rem] font-bold text-theme-primary">CashVue</span>
                     </Link>
 
                     {/* Desktop Menu */}
@@ -109,38 +111,77 @@ const Header = ({ onAddTransactionClick }) => {
                         {user ? (
                            // ... Logged-in desktop buttons
                            <>
-                                <Link to="/debts" className="text-theme-text-secondary hover:text-theme-primary font-semibold flex items-center mr-2"><FaHandHoldingUsd className="mr-1" /> Debts & Loans</Link>
-                                <Link to="/budgets" className="text-theme-text-secondary hover:text-theme-primary font-semibold flex items-center mr-2"><FaClipboardList className="mr-1" /> Budgets</Link>
-                                <button onClick={onAddTransactionClick} className="flex items-center bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300"><FaPlus className="mr-2" /> Add Transaction</button>
+                                <Link to="/debts" className="flex items-center bg-transparent border-2 border-theme-primary text-theme-primary font-bold py-1.5 px-3 rounded-full hover:bg-theme-primary hover:text-white transition-colors"><FaHandHoldingUsd className="mr-1" /> Debts & Loans</Link>
+                                <Link to="/budgets" className="flex items-center bg-transparent border-2 border-theme-primary text-theme-primary font-bold py-1.5 px-3 rounded-full hover:bg-theme-primary hover:text-white transition-colors"><FaClipboardList className="mr-1" /> Budgets</Link>
+                                <button onClick={onAddTransactionClick} className="flex items-center bg-transparent border-2 border-theme-primary text-theme-primary font-bold py-1.5 px-3 rounded-full hover:bg-theme-primary hover:text-white transition-colors"><FaPlus className="mr-2" /> Add Transaction</button>
                                 <div className="relative">
-                                    <button ref={alertToggleRef} onClick={handleBellClick} className="text-theme-text-secondary hover:text-theme-primary p-2 rounded-full relative">
-                                        <FaBell size={22} />
-                                        {unreadAlertsCount > 0 && (<span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">{unreadAlertsCount}</span>)}
+                                    <button
+                                        ref={alertToggleRef}
+                                        onClick={handleBellClick}
+                                        className="p-1.5 rounded-full relative"
+                                    >
+                                        <FaBell
+                                            size={22}
+                                            className="text-theme-primary hover:opacity-80 transition-opacity"
+                                        />
+                                        {unreadAlertsCount > 0 && (
+                                            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                                                {unreadAlertsCount}
+                                            </span>
+                                        )}
                                     </button>
                                     {showAlerts && (
-                                        <div ref={alertsRef} className="absolute right-0 mt-2 w-72 sm:w-80 bg-theme-surface rounded-lg shadow-xl z-50 border border-gray-100">
-                                            <div className="flex justify-between items-center p-4 border-b">
-                                                <h4 className="font-bold text-theme-text-primary">Notifications</h4>
-                                                {unreadAlertsCount > 0 && (<button onClick={handleClearAll} className="text-sm text-theme-primary font-semibold hover:underline">Mark all as read</button>)}
+                                        <div 
+                                            ref={alertsRef} 
+                                            className="absolute right-0 mt-3 w-80 origin-top-right rounded-xl bg-white/80 backdrop-blur-md shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        >
+                                            <div className="p-4 border-b border-gray-200">
+                                                <div className="flex justify-between items-center">
+                                                    <h4 className="font-bold text-gray-600">Notifications</h4>
+                                                    {unreadAlertsCount > 0 && (
+                                                        <button onClick={handleClearAll} className="text-sm text-theme-primary font-semibold hover:underline">
+                                                            Mark all as read
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="p-2 max-h-80 overflow-y-auto">
+                                            <div className="p-2 max-h-80 overflow-y-auto space-y-1">
                                                 {localAlerts.length > 0 ? localAlerts.map(alert => (
-                                                    <div key={alert._id} className={`p-2 rounded-md ${!alert.isRead ? 'bg-sky-50' : ''}`}>
-                                                        <p className="text-sm text-theme-text-secondary">{alert.message}</p>
+                                                    <div key={alert._id} className={`p-3 rounded-lg ${!alert.isRead ? 'bg-blue-50' : ''}`}>
+                                                        <p className="text-sm text-gray-700">{alert.message}</p>
                                                         <p className="text-xs text-gray-400 mt-1">{new Date(alert.createdAt).toLocaleString()}</p>
                                                     </div>
-                                                )) : <p className="text-sm text-theme-text-secondary p-4 text-center">No new notifications.</p>}
+                                                )) : <p className="text-sm text-gray-500 p-8 text-center">No new notifications.</p>}
                                             </div>
                                         </div>
                                     )}
                                 </div>
+
                                 <div className="relative">
-                                    <button ref={profileToggleRef} onClick={() => setShowProfileMenu(prev => !prev)} className="text-theme-text-secondary hover:text-theme-primary p-1 rounded-full"><FaUserCircle size={26} /></button>
+                                    <button
+                                        ref={profileToggleRef}
+                                        onClick={() => setShowProfileMenu(prev => !prev)}
+                                        className="group rounded-full relative transition-colors duration-200"
+                                    >
+                                        <span className="relative flex items-center justify-center">
+                                            <FaCircle size={30} className="text-gray-200 group-hover:text-theme-primary transition-colors duration-200" /> 
+                                            <FaUser size={18} className="absolute text-theme-primary group-hover:text-white transition-colors duration-200" />
+                                        </span>
+                                    </button>
                                     {showProfileMenu && (
-                                        <div ref={profileMenuRef} className="absolute right-0 mt-2 w-48 bg-theme-surface rounded-md shadow-lg z-50 border border-gray-100">
-                                            <div className="py-1">
-                                                <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-gray-100"><FaUserCircle className="mr-3 text-gray-500" /> Profile</Link>
-                                                <button onClick={() => { handleLogout(); setShowProfileMenu(false); }} className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"><FaSignOutAlt className="mr-3" /> Logout</button>
+                                        <div 
+                                            ref={profileMenuRef} 
+                                            className="absolute right-0 mt-3 w-56 origin-top-right divide-y divide-gray-100 rounded-xl bg-white/80 backdrop-blur-md shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        >
+                                            <div className="p-2">
+                                                <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="group flex w-full items-center rounded-lg px-3 py-2 text-sm text-gray-800 hover:bg-theme-primary hover:text-white">
+                                                    <FaUserCircle className="mr-3 h-5 w-5 text-gray-400 group-hover:text-white" /> Profile
+                                                </Link>
+                                            </div>
+                                            <div className="p-2">
+                                                <button onClick={() => { handleLogout(); setShowProfileMenu(false); }} className="group flex w-full items-center rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-500 hover:text-white">
+                                                    <FaSignOutAlt className="mr-3 h-5 w-5 text-red-400 group-hover:text-white" /> Logout
+                                                </button>
                                             </div>
                                         </div>
                                     )}
@@ -149,7 +190,7 @@ const Header = ({ onAddTransactionClick }) => {
                         ) : (
                             // Logged-out desktop buttons
                             <>
-                                <Link to="/login" className="text-theme-text-secondary hover:text-theme-text-primary px-3 py-2 font-semibold">Login</Link>
+                                <Link to="/login" className="text-theme-text-secondary hover:text-theme-primary px-3 py-2 font-bold mr-2">Login</Link>
                                 <Link to="/register" className="bg-theme-primary hover:opacity-90 text-white font-bold py-2 px-4 rounded-full transition duration-300">Register</Link>
                             </>
                         )}
@@ -171,18 +212,18 @@ const Header = ({ onAddTransactionClick }) => {
             {/* ... rest of the component (Mobile Slider Menu, etc.) ... */}
             <div ref={menuRef} className={`fixed top-0 right-0 h-full w-64 bg-theme-surface shadow-lg z-50 transform transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex justify-between items-center p-4 border-b">
-                    <h3 className="text-lg font-bold text-theme-primary">Menu</h3>
+                    <h3 className="text-[20px] font-bold text-theme-primary">Menu</h3>
                     <button onClick={() => setMobileMenuOpen(false)} className="text-gray-600 hover:text-red-500"><FaTimes size={22} /></button>
                 </div>
                 <div className="flex flex-col p-4 gap-4">
-                    <Link to="/debts" className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold" onClick={() => setMobileMenuOpen(false)}><FaHandHoldingUsd className="mr-2" /> Debts & Loans</Link>
-                    <Link to="/budgets" className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold" onClick={() => setMobileMenuOpen(false)}><FaClipboardList className="mr-2" /> Budgets</Link>
-                    <Link to="/profile" className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold" onClick={() => setMobileMenuOpen(false)}><FaUserCircle className="mr-2" /> Profile</Link>
-                    <button onClick={() => { setMobileMenuOpen(false); setMobileAlertsOpen(true); }} className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold text-left">
-                        <FaBell className="mr-2" /> Notifications
+                    <Link to="/profile" className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold text-[20px]" onClick={() => setMobileMenuOpen(false)}><FaUserCircle size={25} className="mr-2" /> Profile</Link>
+                    <Link to="/debts" className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold text-[20px]" onClick={() => setMobileMenuOpen(false)}><FaHandHoldingUsd size={25} className="mr-2" /> Debts & Loans</Link>
+                    <Link to="/budgets" className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold text-[20px]" onClick={() => setMobileMenuOpen(false)}><FaClipboardList size={25} className="mr-2" /> Budgets</Link>
+                    <button onClick={() => { setMobileMenuOpen(false); setMobileAlertsOpen(true); }} className="flex items-center text-theme-text-secondary hover:text-theme-primary font-semibold text-left text-[20px]">
+                        <FaBell size={25} className="mr-2" /> Notifications
                         {unreadAlertsCount > 0 && (<span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{unreadAlertsCount}</span>)}
                     </button>
-                    <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 mt-4"><FaSignOutAlt className="mr-2" /> Logout</button>
+                    <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 mt-4 text-[20px]"><FaSignOutAlt size={25} className="mr-2" /> Logout</button>
                 </div>
             </div>
             

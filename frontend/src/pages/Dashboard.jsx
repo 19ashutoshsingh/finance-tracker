@@ -59,9 +59,14 @@ const Dashboard = () => {
     return (
         <>
             <Layout onAddTransactionClick={() => setModalOpen(true)}>
-                <div className="mb-6 text-center">
-                    <h1 className="text-3xl font-bold text-theme-primary">Welcome Back, {user?.name}!</h1>
-                    <p className="text-theme-text-secondary">Here's your financial overview for {new Date(currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}.</p>
+                <div className="mb-8">
+                    <h1 className="flex items-center gap-3 text-2xl sm:text-4xl font-bold text-theme-primary">
+                        <span>👋</span>
+                        <div>
+                            <span className="font-semibold">Welcome Back,</span> {user?.name}!
+                        </div>
+
+                    </h1>
                 </div>
 
                 {/* ✅ Mobile Summary Card (Visible on small screens, hidden on md and up) */}
