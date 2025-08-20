@@ -59,26 +59,25 @@ export const getUser = async (req, res) => {
     }
 };
 
+// In controllers/authController.js
 export const updateUserProfile = async (req, res) => {
+    // ✨ Get avatarUrl from the request body now
+    const { name, avatarUrl } = req.body;
+
     try {
         const user = await User.findById(req.user.id);
-
-        if (user) {
-            user.name = req.body.name || user.name;
-            const updatedUser = await user.save();
-            const payload = { user: { id: updatedUser.id } };
-            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5d' });
-
-            res.json({
-                token,
-                _id: updatedUser._id,
-                name: updatedUser.name,
-                email: updatedUser.email
-            });
-
-        } else {
-            res.status(404).json({ msg: 'User not found' });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
+
+        // Update name and avatarUrl
+        if (name) user.name = name;
+        if (avatarUrl) user.avatarUrl = avatarUrl;
+        
+        const updatedUser = await user.save();
+        
+        res.json({ user: updatedUser });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

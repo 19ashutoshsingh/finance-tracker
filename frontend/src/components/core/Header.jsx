@@ -101,7 +101,7 @@ const Header = ({ onAddTransactionClick }) => {
             <header className="shadow-sm bg-theme-surface/80 backdrop-blur-sm sticky top-0 z-50">
                 <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
                     {/* Logo */}
-                    <Link to={user ? "/dashboard" : "/"} className="flex items-center">
+                    <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-1">
                         <img src={logo} alt="Site Logo" className="h-10 w-auto" />
                         <span className="text-[1.5rem] font-bold text-theme-primary">CashVue</span>
                     </Link>
